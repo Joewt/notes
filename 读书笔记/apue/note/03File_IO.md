@@ -14,7 +14,7 @@
 int open(const char *path, int oflag, ... /* mode_t mode */);
 int openat(int fd, const *path, int oflag, ... /* mode_t mode */);
 // 最后一个参数 ... ISO C用这种方法表明余下的参数的数量及其类型是可变的。
-//open 函数 只有当创建新文件时才使用最后这个参数 
+//open 函数 只有当创建新文件时才使用最后这个参数
 //函数的返回值：若成功，返回文件描述符，若出错，返回-1
 ```
 path 参数是要打开或创建文件的名字。oflag参数 用来说明该函数的多个选项。  
@@ -52,7 +52,7 @@ int main(void)
         printf("cannot seek\n");
     else
         printf("seek ok\n");
-    
+
     exit(0);
 }
 ```
@@ -77,10 +77,14 @@ write 出错的一个常见原因是磁盘已写满 或者超过了一个给定�
 普通文件 写操作从当前文件偏移量开始。打开文件时指定了O_APPEND选项(O_APPEND每次写都追加到文件末尾),  
 每次写操作将文件偏移量设置在文件的当前结尾处,在一次写成功后，该文件偏移量增加实际写的字节数
 
+## 3.9 I/O的效率
+
 ```
 //只使用read 和 write函数 复制文件
 #include "apue.h"
-#define BUFFSIZE 4096
+#define BUFFSIZE 4096   
+//设置为4096的原因 是系统CPU的时间的最小值差不多是BUFFSIZE为4096或之后的值,
+//继续增加缓冲区长度对这个时间几乎没有影响
 int main(void)
 {
     int     n;
@@ -94,3 +98,61 @@ int main(void)
     exit(0);
 }
 ```
+
+## 3.11 原子操作
+1.
+- 追加文件时如果使用lseek设置文件偏移量到末尾 然后使用write函数写入文件，会出现问题.
+- 有两个进程的话 可能会发生覆盖数据的情况
+
+UNIX系统为这样的操作提供了一种原子操作，即在打开文件时时设置O_APPEND标志，使得进程每次write时都将文件偏移量设置到文件末尾处，也就不需要lseek函数。
+
+2. 函数pread和pwrite  
+原子定位读和原子定位写
+```
+#include <unistd.h>
+ssize_t pread(int fd, void *buf, size_t nbytes, off_t offset);
+ssize_t pwrite(int fd, const void *buf, size_t nbytes, off_t offset);
+```
+- 参数:
+    - fd: 文件描述符
+    - buf: 文件缓冲区
+    - nbytes: 预计读或写的数据字节数
+    - offset: 文件偏移
+- 返回:
+    - 成功: pread返回读到的字节数，write返回已写的字节数
+    - 失败: 返回-1
+
+调用pread/pwrite相当于先调用lseek再调用read/write，但又与这种调用有所区别
+- 调用pread/pwrite时无法中断其定位读/写操作
+- 不更新当前文件偏移量
+
+## 3.12 dup和dup2函数(未更新完)
+
+用来复制文件描述符  
+```
+#include <unistd.h>
+int dup(int fd);
+int dup2(int fd, int fd2);
+```
+- 参数:
+    - fd: 描述符的值
+    - fd2: 新的描述符的值。
+- 返回:
+    - 成功: 返回新的文件描述符
+    - 失败: 返回-1
+
+如果 fd == fd2 则返回fd2的文件描述符，不关闭它。否则fd2的FD_CLOEXEC文件描述符标志被清除，这样fd2在进程调用exec时是打开状态  
+返回的新的文件描述符与参数fd共享同一个文件表项
+
+## 3.13 sync,fsync,fdatasync 函数
+函数原型
+```
+#include <unistd.h>
+int fsync(int fd);
+int fdatasync(int fd);
+
+void sync(void);
+```
+- sync: 将所有修改过的块缓存写入到队列，然后返回
+- fsync: 只针对由文件描述符fd指定的一个文件起作用，等待磁盘写操作完成后才结束(waits for the disk writes to complete before returning)。可用于数据库这样的应用程序
+- fdatasync: 除了数据部分，还会同步更新文件属性
