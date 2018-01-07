@@ -1,5 +1,15 @@
 ### apue 配置问题
 
+##### mac 系统配置
+
+执行 make all
+
+将 ./apue.3e/include/下的  apue.h 复制到 /usr/local/include/下  
+将 ./apue.3e/lib/下的 error.c 复制到 /usr/local/include/ 下  
+然后修改 apue.h文件  在最后添加 #include "error.c"  
+
+##### Linux 系统的配置如上  
+
 使用的是centos7 系统 编译源码的时候发现如下错误
 ```
 gcc -ansi -I../include -Wall -DLINUX -D_GNU_SOURCE  barrier.c -o barrier  -L../lib -lapue -pthread -lrt -lbsd
