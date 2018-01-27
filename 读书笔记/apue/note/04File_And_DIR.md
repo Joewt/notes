@@ -51,7 +51,8 @@ struct stat {
 ```
 
 
-文件类型
+文件类型  
+
 |宏|文件类型|
 |:--|:--|
 |S_ISREG() |普通文件|
@@ -119,7 +120,8 @@ exit(0);
 ## 4.5 文件访问权限
 除了文件外，目录字符特殊文件都有访问权限  
 每个文件有9个访问权限位，分为如下3类  
-在 <sys/stat.h>中定义
+在 <sys/stat.h>中定义  
+
 |st_mode屏蔽|含义|
 |:--|:--|
 | S_IRUSR  |用户读   |
@@ -155,6 +157,7 @@ int faccessat(int fd,const char* pathaname,int mode,int flag);
 //成功返回0，出错返回-1
 ```
 如果测试文件存在，mode就为F_OK,否则mode为如下图中所列常量的按位或。
+
 |mode|说明|
 |:--|:--|
 | R_OK  |测试读权限  |
