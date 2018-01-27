@@ -1,3 +1,5 @@
+# 文件I/O
+
 ## 3.2 文件描述符
 &emsp;&emsp;对于内核而言，所有打开的文件都通过文件描述符引用，文件描述符是一个非负整数。  
 &emsp;&emsp;**UNIX**系统shell把文件描述符0与进程的标准输入关联，1与标准输出关联，2与标准错误关联  
@@ -156,3 +158,11 @@ void sync(void);
 - sync: 将所有修改过的块缓存写入到队列，然后返回
 - fsync: 只针对由文件描述符fd指定的一个文件起作用，等待磁盘写操作完成后才结束(waits for the disk writes to complete before returning)。可用于数据库这样的应用程序
 - fdatasync: 除了数据部分，还会同步更新文件属性
+
+## 3.14 fcntl函数
+```
+// 改变已打开的文件属性
+#include <fcntl.h>
+int fcntl(int fd, int cmd, ...);
+
+```
