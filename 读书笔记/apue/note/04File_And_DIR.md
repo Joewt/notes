@@ -196,3 +196,89 @@ cmask 参数有9个访问权限位若干个按位"或"构成
 * 002 阻止其他用户写入你的文件
 * 022 阻止同组成员和其他用户写入你的文件
 * 027 阻止同组成员写你的文件以及其他用户读、写、执行你的文件
+
+## 4.12 文件长度
+stat 结构成员st_size 表示以字节为单位的文件长度,改字段只对普通文件，目录文件，链接文件有作用  
+* 普通文件，其文件长度可以为0，从文件开始到end-of-file。
+* 目录文件，是一个数的整数倍(例如16或512)
+* 链接文件，文件名中的实际字节数
+
+## 4.13 文件截断
+
+```
+#include <unistd.h>
+int truncate(const char *pathname,off_t length);
+int ftruncate(int fd, off_t length);
+//成功返回0，失败返回-1
+
+```
+
+如果文件长度大于length，则length后的数据不能访问，如果小于，文件长度增加。增加的这段填充0(可能在文件中创建了一个空洞)
+
+## 4.14 文件系统
+
+
+
+## 4.15 函数link,linkat,unlink,unlinkat,remove
+任何一个文件可以有多个目录项指向其i节点。创建一个现有文件的链接的方法是使用link或linkat函数  
+```
+#include <unistd.h>
+int link(const char* existingpath, const char* newpath);
+int linkat(int efd, const char* existingpath, int nfd, const char* newpath, int flag);
+//成功返回0，出错返回-1
+
+```
+* 这俩函数创建一个新目录项newpath，引用现有文件existingpath。如果newpath已经存在则出错。只创建newpath中最后一个分量。  
+* linkat函数，现有文件和新的路径名都是通过efd和existingpath、nfd和newpath指定。nfd和efd是文件描述符，如果目录是相对目录就根据文件描述符进行计算，如果是绝对路径该参数将会忽略。  
+* 当现有文件是符号链接时，由flag参数来控制linkat函数是创建现有符号链接的链接还是创建执行现有符号链接指向的文件的链接。如果在flag参数中设置了AT_SYMLINK_FOLLOW标志，就创建指向符号链接目标的链接。如果这个标志被清除则创建一个指向符号链接本身的链接。  
+
+删除一个目录项，可以调用unlink函数
+```
+#incude <unistd.h>
+int unlink(const char* pathname);
+int unlinkat(int fd, const char* pathname, int flag);
+//成功返回0，出错返回-1
+```
+删除目录项，并将由pathname所引用文件链接计数减1。只有当链接计数达到0时，该文件才被删除。  
+为了解除对文件的链接，必须对包含该目录项的目录具有写和执行权限。如果该目录设置了粘着位，则对该目录必须具有写权限，并且要具备下面三个条件之一：
+* 拥有该文件
+* 拥有该目录
+* 具有超级用户权限
+
+unlink通常用于确保即使程序崩溃，它所创建的临时文件也不会遗留下来。进程用open和creat创建一个文件，然后立即调用unlink，因为该文件仍然是打开的，所以不会将其内容删除。只有当进程关闭该文件或终止时，该文件的内容才被删除。  
+#### remove函数
+```
+#include <stdio.h>
+int remove(const char* pathname);
+//成功返回0，失败返回-1
+```
+对于文件remove与unlink的功能类似，对于目录与rmdir相同  
+
+## 4.16 函数rename与renameat
+文件或目录可以使用rename和renameat重命名  
+```
+#include <stdio.h>
+int rename(const char* oldname, const char* newname);
+int renameat(int oldfd, const char* oldname, int newfd, const char* newname);
+//成功返回0，失败返回-1
+```
+oldname参数是 目录、文件还是符号链接有以下几点说明
+1. 如果oldname指的是一个文件而不是目录，那么为该文件或符号链接重命名。在这种情况下如果newname已经存在，则它不能引用一个目录。如果newname已经存在并且不是一个目录，则先将该目录项删除然后将oldname重命名为newname。对包含oldname的目录以及newname的目录，调用进程必须有写权限，因为要更改该目录
+2. 如果oldname指的是一个目录，那么为该目录重命名。如果newname已经存在，则它必须引用一个目录，而且该目录是空目录(空目录指只包含.和..项)。如果newname存在，则先将其删除，然后将oldname重命名为newname。另外，当为一个目录重命名时，newname不能包含oldname作为其路径前缀。例如不能将/usr/foo重命名为/usr/foo/test,因为旧名字是新名字的路径前缀，因而不能讲其删除。
+3. 如果oldname和newname引用的是符号链接，则处理的是符号链接本身，而不是符号链接引用的文件  
+4. 不能对.和..重命名
+5. 如果oldname和newname引用同一个文件，则不做任何改动 返回
+
+## 4.17 符号链接(软链接)
+符号链接是对一个文件的间接指针，引用符号链接是避免硬链接的一些限制
+* 硬链接通常要求链接和文件在同一个文件系统中
+* 只有超级用户才能创建指向目录的硬链接(在底层文件系统的支持下)
+
+符号链接一般用于将一个文件或整个目录结构移到系统的另一个位置。符号链接有着自己的inode号和用户数据块
+## 4.19 文件的时间
+对每个文件通常维护3个时间段  
+|字段|说明|例子|ls选项|
+|--|--|--|--|
+|st_atim   |文件数据的最后访问时间   |read   |-u   |
+|st_mtim   |文件数据的最后修改时间   |write  |默认  |
+|st_ctim   |i节点状态的最后更改时间   |chmod,chown   |-c   |
