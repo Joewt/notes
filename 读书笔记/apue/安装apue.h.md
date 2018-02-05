@@ -21,8 +21,8 @@ make[1]: Leaving directory `/home/learnApue/apue.3e/threads'
 make: *** [all] Error 1
 ```
 解决办法 [这里](https://pkgs.org/) 下载两个包  
-下载的为libbsd-devel-0.6.0-3.el7.elrepo.x86_64.rpm和libbsd-devel-0.6.0-3.el7.elrepo.x86_64.rpm
-按照顺序按照   
+下载的为libbsd-0.6.0-3.el7.elrepo.x86_64.rpm和libbsd-devel-0.6.0-3.el7.elrepo.x86_64.rpm
+按照顺序安装  
 安装方法 rpm -Uvh xxxx.rpm  
 
 这样就可以使用了
