@@ -347,4 +347,29 @@ int setgid(gid_t gid);
 ```
 * 若进程具有超级用户权限，则setuid函数将实际用户ID，有效用户ID以及保存的设置用户ID(saved set-user-ID)设置为uid。
 * 若进程没有超级用后权限，但是uid等于实际用户ID或保存的设置用户ID，则setuid只将有效用户ID设置为uid。不更改实际用户ID和保存的设置用户ID
-* 如果都不满足，则errno设置为EPERM，并返回-1
+* 如果都不满足，则errno设置为EPERM，并返回-1  
+
+
+## 解释器文件
+所有的UNIX系统都支持解释器文件。这种文件是文本文件，其起始行的形式是:  
+```
+#! pathname[optional-argument]
+
+常见的一个
+#! /bin/sh
+```
+
+## 函数system
+ISO C定义了system函数，但是其操作对系统的依赖性很强。POSIX.1 包括了system接口，它扩展了ISO C定义，描述了system在POSIX.1 环境中的运行行为。  
+```
+#include <stdlib.h>
+int system(const char* cmdstring);
+
+```
+返回值：
+
+- 如果cmdstring是一个空指针，则仅当命令行处理程序可用时，system返回非0值，这一特征可以确定在一个给定的操作系统上是否支持system函数。
+- 因为system在其实现中调用了fork、exec和waitpid，因此有3种返回值  
+    - fork失败或者waitpid返回除EINTR之外的错误，则system返回-1，并且设置errno以指示错误类型。
+    - 如果exec失败(表示不能执行shell)，则其返回值如同shell执行了exit(127)一样
+    - 否则3个函数(fork,exec和waitpid)都成功，那么system的返回值是shell的终止状态。
