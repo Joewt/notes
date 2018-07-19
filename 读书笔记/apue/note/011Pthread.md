@@ -2,18 +2,18 @@
 
 ## 线程的概念  
 
-典型的UNIX进程可以看成只有一个控制线程；一个进程在某一时刻只能做一件事情。有了多个控制线程后，在程序设计时就可以把进程设计成在某一时刻做不止一件事，每个线程处理各自独立的任务。这种方法有很多好处  
+典型的UNIX进程可以看成只有一个控制线程；一个进程在某一时刻只能做一件事情。有了多个控制线程后，在程序设计时就可以把进程设计成在某一时刻做不止一件事，每个线程处理各自独立的任务。这种方法有很多好处  
 1. 简化处理异步事件的代码
-2. 分解复杂的问题提高整个程序的吞吐量
-3. 使用多线程改善响应时间  
+2. 分解复杂的问题提高整个程序的吞吐量
+3. 使用多线程改善响应时间  
 
-每个线程都包含有表示执行环境所必须的信息。其中包括进程中标识线程的线程ID、一组寄存器值、栈、调度优先级和策略、信号屏蔽字、errno变量以及线程私有数据。  
-## 线程标识
+每个线程都包含有表示执行环境所必须的信息。其中包括进程中标识线程的线程ID、一组寄存器值、栈、调度优先级和策略、信号屏蔽字、errno变量以及线程私有数据。  
+## 线程标识
 
-每个线程都有一个线程ID。但跟进程不一样，进程ID在整个系统中是唯一的，线程ID只有在它所属的进程上下文中才有意义。  
+每个线程都有一个线程ID。但跟进程不一样，进程ID在整个系统中是唯一的，线程ID只有在它所属的进程上下文中才有意义。  
 
 
-线程ID通过使用pthread_t数据类型表示，必须要使用一个函数对两个线程ID进行比较。  
+线程ID通过使用pthread_t数据类型表示，必须要使用一个函数对两个线程ID进行比较。  
 ```
 #include <pthread.h>
 int pthread_equal(pthread_t tid1, pthread_t tid2);
@@ -28,7 +28,7 @@ pthread_t pthread_self(void);
 
 ## 线程创建
 
-新增的线程可以通过调用pthread_create函数创建。  
+新增的线程可以通过调用pthread_create函数创建。  
 ```
 #include <pthread.h>
 int pthread_create(pthread_t *restrict tidp, 
@@ -38,7 +38,7 @@ int pthread_create(pthread_t *restrict tidp,
 ```
 * 当pthread_create成功返回时，新创建线程的线程ID会被设置成tidp指向的内存单元。attr用于定制各种不同的线程属性(第12章介绍)，设置为NULL，表示创建一个具有默认属性的线程。
 * 新创建的线程从start_rtn函数的地址开始执行，该函数只有一个无类型指针参数arg。如果有多个参数传递，需要把这些参数放到一个结构中，然后传递这个结构的地址进去。
-* 线程创建时不能保证执行顺序  
+* 线程创建时不能保证执行顺序  
 
 如下程序创建了一个线程，打印了进程ID、新线程的线程ID以及初始线程的线程ID。 
 
@@ -72,9 +72,9 @@ int main()
 }
 ```
 
-运行结果如图所示  
+运行结果如图所示  
 ![](../img/chapter-11/figure11.2.png)  
-可以看到打印出了相同的进程ID，但在mac系统上线程ID不在相同地址段范围  
+可以看到打印出了相同的进程ID，但在mac系统上线程ID不在相同地址段范围  
 
 ## 线程终止
 
@@ -89,7 +89,7 @@ int main()
 void pthread_exit(void *rval_ptr);
 ```
 
-rval_ptr参数是一个无类型指针，进程中的其他线程可以通过调用pthread_join函数访问到这个指针
+rval_ptr参数是一个无类型指针，进程中的其他线程可以通过调用pthread_join函数访问到这个指针
 
 ```
 #include <pthread.h>
@@ -100,7 +100,7 @@ int pthread_join(pthread_t thread, void **rval_ptr);
 * 调用线程将一直阻塞，直到指定的线程调用pthread_exit、从启动例程中返回或者被取消。如果线程简单地从它的启动例程返回，rval_ptr就包含返回码。如果线程被取消，由rval_ptr指定的内存单元就设置为PTHREAD_CANCELED。  
 * 通过调用pthread_join自动把线程置于分离状态，这样资源就可以恢复。如果线程已经处于分离状态，pthread_join就会调用失败，返回EINVAL  
 
-如下程序展示了如何获取已经终止线程的退出码  
+如下程序展示了如何获取已经终止线程的退出码  
 
 ```
 #include "apue.h"
@@ -147,7 +147,7 @@ int main(void)
 ```
 #include <pthread.h>
 int pthread_cancel(pthread_t tid);
-//成功返回0，失败返回错误编号
+//成功返回0，失败返回错误编号
 ```
 
 pthread_cancel并不等待线程终止，它仅仅提出请求  
@@ -232,7 +232,7 @@ int main(int argc, const char *args[])
 运行结果如下  
 ![](../img/chapter-11/figure11.5.png)  
 
-mac 下会产生core文件。这是因为在mac平台上，pthread_cleanup_push是用宏实现的，而宏把某些上下文存放到栈上。当线程1在调用pthread_cleanup_push和调用pthread_cleanup_pop之间返回时，栈已被改写，而这个平台在调用清理处理程序时就用了这个被改写的上下文。在Single UNIX Specification中，函数如果在调用pthread_cleanup_push和pthread_cleanup_pop之间返回，会产生未定义行为。唯一的可移植方法是调用pthread_exit.  
+mac 下会产生core文件。这是因为在mac平台上，pthread_cleanup_push是用宏实现的，而宏把某些上下文存放到栈上。当线程1在调用pthread_cleanup_push和调用pthread_cleanup_pop之间返回时，栈已被改写，而这个平台在调用清理处理程序时就用了这个被改写的上下文。在Single UNIX Specification中，函数如果在调用pthread_cleanup_push和pthread_cleanup_pop之间返回，会产生未定义行为。唯一的可移植方法是调用pthread_exit.  
 
 ## 线程同步  
 
@@ -254,11 +254,11 @@ int pthread_mutex_destory(pthread_mutex_t *mutex);
 ```  
 
 要用默认的属性初始化互斥量，只需把attr设为NULL。  
-对互斥量进行加锁，需要调用pthread_mutex_lock。如果互斥量已经上锁，调用线程将阻塞直到互斥量被解锁。对互斥量解锁，需要调用pthread_mutex_unlock  
+对互斥量进行加锁，需要调用pthread_mutex_lock。如果互斥量已经上锁，调用线程将阻塞直到互斥量被解锁。对互斥量解锁，需要调用pthread_mutex_unlock  
 
 ```
 #include <pthread.h>
-int pthread_mutex_lock(pthread_mutex_t *mutex);
+int pthread_mutex_lock(pthread_mutex_t *mutex);
 int pthread_mutex_trylock(pthread_mutex_t *mutex);
 int pthread_mutex_unlock(pthread_mutex_t *mutex);
 //成功返回0，错误返回错误编号
@@ -271,25 +271,25 @@ int pthread_mutex_unlock(pthread_mutex_t *mutex);
 
 ### 避免死锁  
 
-#### 死锁产生的原因  
+#### 死锁产生的原因  
 
 1. 互斥条件
-2. 不可剥夺条件
-3. 请求和保持条件
+2. 不可剥夺条件
+3. 请求和保持条件
 4. 循环等待条件
 
 #### 死锁预防
-1. 破坏“不可剥夺”条件
-2. 破坏“请求和保持”条件
+1. 破坏“不可剥夺”条件
+2. 破坏“请求和保持”条件
 3. 破坏“循环等待”条件
 
 #### 死锁避免
 
 银行家算法 避免死锁
 
-### 函数pthread_mutex_timedlock  
+### 函数pthread_mutex_timedlock  
 
-当线程试图获取一个已加锁的互斥量时，pthread_mutex_timedlock互斥量原语允许绑定线程阻塞时间。pthread_mutex_timedlock函数与pthread_mutex_lock基本等价，但是在达到超时时间值时，pthread_mutex_timedlock不会对互斥量进行加锁，而是返回错误码ETIMEDOUT。  
+当线程试图获取一个已加锁的互斥量时，pthread_mutex_timedlock互斥量原语允许绑定线程阻塞时间。pthread_mutex_timedlock函数与pthread_mutex_lock基本等价，但是在达到超时时间值时，pthread_mutex_timedlock不会对互斥量进行加锁，而是返回错误码ETIMEDOUT。  
 
 ```
 #include <pthread.h>
@@ -300,7 +300,7 @@ int pthread_mutex_timedlock(pthread_mutex_t *restrict mutex,
 //成功返回0，失败返回错误编号
 ```
 
-如下程序是使用pthread_mutex_timedlock避免永久阻塞  
+如下程序是使用pthread_mutex_timedlock避免永久阻塞  
 
 
 ```
@@ -337,7 +337,7 @@ int main(void)
 }
 ```  
 
-### 读写锁
+### 读写锁
 
 读写锁(reader-writer lock)与互斥量类似，不过读写锁允许更高的并行性。互斥量要么是锁住状态，要么就是不加锁状态，而且一次只有一个线程可以对其加锁。读写锁有3种状态：  
 1. 读模式下加锁
@@ -346,7 +346,7 @@ int main(void)
 
 一次只有一个线程可以占有写模式的读写锁，但是多个线程可以同时占有读模式的读写锁。 
 
-* 写加锁状态，锁被解锁前，所有试图对这个锁加锁的线程都会被阻塞。
+* 写加锁状态，锁被解锁前，所有试图对这个锁加锁的线程都会被阻塞。
 * 读加锁状态，所有以读模式对它进行加锁的线程都可以获得访问权，以写模式对它进行加锁的线程都会阻塞，直到所有线程释放它们的读锁为止。  
 
 读写锁适合对数据结构读的次数远大于写的情况。  
@@ -379,7 +379,7 @@ int pthread_rwlock_unlock(pthread_rwlock_t *rwlock);
 #include <pthread.h>
 int pthread_rwlock_tryrdlock(pthread_rwlock_t *rwlock);
 int pthread_rwlock_trywrlock(pthread_rwlock_t *rwlock);
-//成功返回0，失败返回错误编号
+//成功返回0，失败返回错误编号
 ```
 
 ### 带有超时的读写锁
@@ -397,10 +397,10 @@ int pthread_rwlock_timedwrlock(thread_rwlock_t *restrict rwlock,
 
 ### 条件变量  
 
-条件变量是线程可用的另一种同步机制。条件变量给多个线程提供了一个汇合的场所，条件变量与互斥量一起使用，允许线程以无竞争的方式等待特定的条件发生。  
-条件本身是由互斥量保护的。线程在改变条件状态之前必须首先锁住互斥量。其他线程在获得互斥量之前不会察觉到这种改变，因为互斥量必须在锁定以后才能计算条件。  
+条件变量是线程可用的另一种同步机制。条件变量给多个线程提供了一个汇合的场所，条件变量与互斥量一起使用，允许线程以无竞争的方式等待特定的条件发生。  
+条件本身是由互斥量保护的。线程在改变条件状态之前必须首先锁住互斥量。其他线程在获得互斥量之前不会察觉到这种改变，因为互斥量必须在锁定以后才能计算条件。  
 在使用前，先初始化，使用pthread_cond_init函数进行初始化。  
-pthread_cond_destroy函数对条件变量进行反初始化  
+pthread_cond_destroy函数对条件变量进行反初始化  
 
 ```
 #include <pthread.h>
@@ -438,8 +438,8 @@ pthread_cond_signal函数至少能唤醒一个等待该条件的线程，而pthr
 自旋锁与互斥量类似，但它不是通过休眠使进程阻塞，而是在获取锁之前一直处于忙等阻塞状态，自旋锁可以用于以下状况：  
 1. 锁被持有的时间短，而且线程并不希望在重新调度上花费太多成本。
 
-自旋锁通常作为底层原语用于实现其他类型的锁。  
-自旋锁用在非抢占式内核中是非常有用的  
+自旋锁通常作为底层原语用于实现其他类型的锁。  
+自旋锁用在非抢占式内核中是非常有用的  
 自选锁的接口与互斥量的接口类似  
 
 ```
