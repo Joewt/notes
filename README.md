@@ -35,6 +35,8 @@
 * [PHP扩展开发及内核应用](https://github.com/walu/phpbook)
 * [swoole源码分析](https://github.com/LeoYang90/swoole-source-analysis)
 
+* [Laravel框架关键技术解析](读书笔记/Laravel框架关键技术解析)
+
 
 ### 其他
 * [一些比较实用的工具](tool/README.md)
