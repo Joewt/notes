@@ -13,6 +13,8 @@ snowflake: snowflake的go实现 用于分布式id生成器 https://github.com/bw
 
 http2体验  https://http2.golang.org  
 
+有用的脚本 https://greasyfork.org/zh-CN/scripts  
+
 
 
 ## GO语言实用包
