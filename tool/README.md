@@ -19,9 +19,11 @@ http2体验  https://http2.golang.org
 
 ## GO语言实用包
 uuid 生成 https://github.com/satori/go.uuid  
+excel 操作 https://gitee.com/xurime/excelize  
 
 ## GO语言web框架
 beego
+iris https://iris-go.com/  
 
 ## docker image 展示
 https://github.com/wagoodman/dive
