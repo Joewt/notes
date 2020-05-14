@@ -7,6 +7,10 @@
 
 * [流量统计](GO/project/流量统计) -- GO语言协程流量统计
 
+* [GO实用工具集](https://github.com/yinrenxin/go-tools) -- 自己实现的一些GO编写的工具集
+
+* [HGOJ](https://github.com/yinrenxin/hgoj) -- GO实现的判题系统
+
 
 
 ### PHP
@@ -39,4 +43,4 @@
 
 
 ### 其他
-* [一些比较实用的工具](tool/README.md)
+* [一些比较实用的工具收藏](tool/README.md)
