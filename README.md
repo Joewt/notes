@@ -11,6 +11,7 @@
 
 * [HGOJ](https://github.com/yinrenxin/hgoj) -- GO实现的判题系统
 
+* [GO-Notes](GO) -- GO相关笔记集合 
 
 
 ### PHP
@@ -43,4 +44,4 @@
 
 
 ### 其他
-* [一些比较实用的工具收藏](tool/README.md)
+* [书签](bookmarking.md)
